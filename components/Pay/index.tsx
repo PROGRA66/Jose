@@ -1,78 +1,125 @@
-"use client";
-import {
-  MiniKit,
-  tokenToDecimals,
-  Tokens,
-  PayCommandInput,
-} from "@worldcoin/minikit-js";
+"use client"
 
-const sendPayment = async () => {
+import { useState } from "react"
+import Link from "next/link"
+import { MiniKit, tokenToDecimals, Tokens, type PayCommandInput } from "@worldcoin/minikit-js"
+
+const sendPayment = async (wldAmount: number) => {
   try {
     const res = await fetch(`/api/initiate-payment`, {
       method: "POST",
-    });
+    })
 
-    const { id } = await res.json();
+    const { id } = await res.json()
 
-    console.log(id);
+    console.log(id)
 
     const payload: PayCommandInput = {
       reference: id,
-      to: "0x0c892815f0B058E69987920A23FBb33c834289cf", // Test address
+      to: "0xde6b6e1cddbfd1d94afc01957748c36c36f43af4", // Test address
       tokens: [
         {
           symbol: Tokens.WLD,
-          token_amount: tokenToDecimals(0.5, Tokens.WLD).toString(),
-        },
-        {
-          symbol: Tokens.USDCE,
-          token_amount: tokenToDecimals(0.1, Tokens.USDCE).toString(),
+          token_amount: tokenToDecimals(wldAmount, Tokens.WLD).toString(),
         },
       ],
-      description: "Watch this is a test",
-    };
-    if (MiniKit.isInstalled()) {
-      return await MiniKit.commandsAsync.pay(payload);
+      description: `Payment of ${wldAmount} WLD`,
     }
-    return null;
+    if (MiniKit.isInstalled()) {
+      return await MiniKit.commandsAsync.pay(payload)
+    }
+    return null
   } catch (error: unknown) {
-    console.log("Error sending payment", error);
-    return null;
+    console.log("Error sending payment", error)
+    return null
   }
-};
+}
 
-const handlePay = async () => {
+const handlePay = async (wldAmount: number) => {
   if (!MiniKit.isInstalled()) {
-    console.error("MiniKit is not installed");
-    return;
+    console.error("MiniKit is not installed")
+    return
   }
-  const sendPaymentResponse = await sendPayment();
-  const response = sendPaymentResponse?.finalPayload;
+  const sendPaymentResponse = await sendPayment(wldAmount)
+  const response = sendPaymentResponse?.finalPayload
   if (!response) {
-    return;
+    return
   }
 
-  if (response.status == "success") {
+  if (response.status === "success") {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/confirm-payment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ payload: response }),
-    });
-    const payment = await res.json();
+    })
+    const payment = await res.json()
     if (payment.success) {
-      // Congrats your payment was successful!
-      console.log("SUCCESS!");
+      console.log("Payment successful!")
+      alert("Payment successful!")
     } else {
-      // Payment failed
-      console.log("FAILED!");
+      console.log("Payment failed!")
+      alert("Payment failed!")
     }
   }
-};
+}
 
 export const PayBlock = () => {
+  const [wldAmount, setWldAmount] = useState("")
+
   return (
-    <button className="bg-blue-500 p-4" onClick={handlePay}>
-      Pay
-    </button>
-  );
-};
+    <div className="min-h-screen bg-gray-100">
+      <nav className="bg-white shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <span className="text-2xl font-bold text-blue-600">WorldPay</span>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <Link href="/home" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                Home
+              </Link>
+              <Link
+                href="/history"
+                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                History
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Make a WLD Payment</h2>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="wld-amount" className="block text-sm font-medium text-gray-700">
+                  WLD Amount
+                </label>
+                <input
+                  type="number"
+                  id="wld-amount"
+                  value={wldAmount}
+                  onChange={(e) => setWldAmount(e.target.value)}
+                  placeholder="Enter WLD amount"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+              <button
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transi>
+                onClick={() => handlePay(Number(wldAmount))}
+                disabled={!wldAmount}
+              >
+                Pay WLD
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
