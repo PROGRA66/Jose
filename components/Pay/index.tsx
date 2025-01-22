@@ -16,7 +16,7 @@ const sendPayment = async (wldAmount: number) => {
 
     const payload: PayCommandInput = {
       reference: id,
-      to: "0xde6b6e1cddbfd1d94afc01957748c36c36f43af4", // Test address
+      to: "0xde6b6e1cddbfd1d94afc01957748c36c36f43af4", // Updated wallet address
       tokens: [
         {
           symbol: Tokens.WLD,
@@ -73,19 +73,26 @@ export const PayBlock = () => {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <span className="text-2xl font-bold text-blue-600">WorldPay</span>
+                <span className="text-2xl font-bold text-blue-600">ORBITAL-X</span>
               </div>
             </div>
-            <div className="flex items-center">
-              <Link href="/home" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                Home
-              </Link>
-              <Link
-                href="/history"
+            <div className="flex items-center space-x-4">
+              <a
+                href="https://e9yeb1soxidsmdg4.vercel.app/"
                 className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                History
-              </Link>
+                Home
+              </a>
+              <a
+                href="https://worldcoin.org/mini-app?app_id=app_e293fcd0565f45ca296aa317212d8741&path=orbiitalx"
+                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Support
+              </a>
             </div>
           </div>
         </div>
@@ -94,7 +101,7 @@ export const PayBlock = () => {
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Make a WLD Payment</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Send WLD</h2>
             <div className="space-y-4">
               <div>
                 <label htmlFor="wld-amount" className="block text-sm font-medium text-gray-700">
